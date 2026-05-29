@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck, AlertCircle, Clock, Trash2, Layers } from 'lucide-react';
 
-const Header = ({ policies = [], overrides = {} }) => {
+const Header = ({ policies = [] }) => {
   const stats = policies.reduce(
     (acc, policy) => {
       const status = (policy.temporal_status || '').toLowerCase();
@@ -15,12 +15,7 @@ const Header = ({ policies = [], overrides = {} }) => {
   );
 
   const total = policies.length;
-
-  // Allow optional override values for display (useful for demos or manual counts)
-  const displayTotal = typeof overrides.total === 'number' ? overrides.total : total;
-  const displayRecoverable = typeof overrides.recoverable === 'number' ? overrides.recoverable : stats.recoverable;
-  const displayExpiring = typeof overrides.expiring === 'number' ? overrides.expiring : stats.expiring;
-  const displayLost = typeof overrides.lost === 'number' ? overrides.lost : stats.lost;
+  // Metrics are calculated directly from the policies array fetched by Dashboard
 
   return (
     <header className="header-section">
@@ -42,7 +37,7 @@ const Header = ({ policies = [], overrides = {} }) => {
             <Layers size={24} />
           </div>
           <div className="metric-info">
-            <span className="metric-value">{displayTotal}</span>
+            <span className="metric-value">{total}</span>
             <span className="metric-label">Total Pólizas</span>
           </div>
         </div>
@@ -52,7 +47,7 @@ const Header = ({ policies = [], overrides = {} }) => {
             <AlertCircle size={24} />
           </div>
           <div className="metric-info">
-            <span className="metric-value">{displayRecoverable}</span>
+            <span className="metric-value">{stats.recoverable}</span>
             <span className="metric-label">Recuperables (Ventana 30d)</span>
           </div>
         </div>
@@ -62,7 +57,7 @@ const Header = ({ policies = [], overrides = {} }) => {
             <Clock size={24} />
           </div>
           <div className="metric-info">
-            <span className="metric-value">{displayExpiring}</span>
+            <span className="metric-value">{stats.expiring}</span>
             <span className="metric-label">Próximas a Vencer</span>
           </div>
         </div>
@@ -72,7 +67,7 @@ const Header = ({ policies = [], overrides = {} }) => {
             <Trash2 size={24} />
           </div>
           <div className="metric-info">
-            <span className="metric-value">{displayLost}</span>
+            <span className="metric-value">{stats.lost}</span>
             <span className="metric-label">Pólizas Perdidas</span>
           </div>
         </div>

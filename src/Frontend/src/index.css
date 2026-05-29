@@ -168,6 +168,13 @@ body {
   color: var(--text-primary);
 }
 
+/* Emphasize recoverable metrics visually for business impact */
+.metric-card.recoverable .metric-value {
+  font-size: 1.95rem;
+  font-weight: 800;
+  color: var(--color-expired-recoverable);
+}
+
 .metric-label {
   font-size: 0.875rem;
   color: var(--text-secondary);

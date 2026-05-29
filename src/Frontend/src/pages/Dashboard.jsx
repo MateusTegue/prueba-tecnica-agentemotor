@@ -113,10 +113,7 @@ const Dashboard = () => {
   return (
     <div className="app-container">
       {/* Metrics Header Component */}
-      <Header
-        policies={policies}
-        overrides={{ total: 3, recoverable: 3, expiring: 2 }}
-      />
+      <Header policies={policies} />
 
       {/* Toolbar Filters / Search */}
       <div className="toolbar">
