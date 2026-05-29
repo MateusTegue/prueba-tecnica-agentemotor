@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.venv/
+pip-wheel-metadata/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.eggs/
+*.egg
+.env
+.env.*
+*.sqlite3
+
+# Node / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+/dist/
+build/
+/dist-ssr/
+.vite/
+*.local
+
+# Vite frontend artifacts
+src/Frontend/dist/
+src/Frontend/node_modules/
+
+# Logs
+logs/
+*.log
+
+# IDEs and editors
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Misc
+coverage/
+coverage.xml
+.coverage.*
+.pip-wheel-metadata/
+.mypy_cache/
