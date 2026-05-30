@@ -1,3 +1,4 @@
+import { ERROR_MESSAGES, getApiErrorMessage } from '../helpers/errorMessages';
 const API_BASE_URL = 'http://localhost:8000';
 
 export const getPolicies = async (filters = {}) => {
@@ -9,8 +10,7 @@ export const getPolicies = async (filters = {}) => {
 
   const response = await fetch(`${API_BASE_URL}/policies?${params.toString()}`);
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.detail || 'Error al obtener las pólizas');
+    throw new Error(await getApiErrorMessage(response, ERROR_MESSAGES.POLICIES_FETCH));
   }
   return response.json();
 };
@@ -18,8 +18,7 @@ export const getPolicies = async (filters = {}) => {
 export const getPolicyDetail = async (policyId) => {
   const response = await fetch(`${API_BASE_URL}/policies/${policyId}`);
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.detail || 'Error al obtener los detalles de la póliza');
+    throw new Error(await getApiErrorMessage(response, ERROR_MESSAGES.POLICY_DETAIL_FETCH));
   }
   return response.json();
 };
@@ -31,8 +30,7 @@ export const createContactAttempt = async (policyId, outcome, notes) => {
     body: JSON.stringify({ outcome, notes }),
   });
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.detail || 'Error al registrar el contacto');
+    throw new Error(await getApiErrorMessage(response, ERROR_MESSAGES.CONTACT_CREATE));
   }
   return response.json();
 };
@@ -44,8 +42,7 @@ export const renewPolicy = async (policyId, newExpirationDate) => {
     body: JSON.stringify({ new_expiration_date: newExpirationDate }),
   });
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.detail || 'Error al renovar la póliza');
+    throw new Error(await getApiErrorMessage(response, ERROR_MESSAGES.POLICY_RENEW));
   }
   return response.json();
 };

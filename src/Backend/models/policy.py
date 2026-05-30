@@ -1,23 +1,3 @@
-"""
-Esquemas Pydantic para la entidad Policy.
-
-Tabla: policies
-- id: INTEGER PK
-- policy_number: TEXT NOT NULL UNIQUE
-- client_id: INTEGER FK → clients.id
-- type: TEXT NOT NULL
-- insurer: TEXT NOT NULL
-- expiration_date: TEXT NOT NULL (YYYY-MM-DD)
-- management_status: TEXT NOT NULL DEFAULT 'pending'
-- created_at: TEXT NOT NULL
-
-Estado temporal (calculado en runtime, nunca almacenado):
-- ACTIVE: days_until_expiration > 30
-- EXPIRING_SOON: 0 < days_until_expiration <= 30
-- EXPIRED_RECOVERABLE: -30 <= days_until_expiration <= 0
-- LOST: days_until_expiration < -30
-"""
-
 from enum import Enum
 from datetime import date
 from pydantic import BaseModel, field_validator
@@ -26,11 +6,7 @@ from typing import Optional, List
 from models.client import ClientBase, ClientResponse
 from models.contact_attempt import ContactAttemptResponse
 
-
-# ---------------------------------------------------------------------------
-# Enums
-# ---------------------------------------------------------------------------
-
+# Enums 
 class TemporalStatus(str, Enum):
     """
     Estado temporal de una póliza, calculado en runtime.
@@ -67,7 +43,7 @@ class TemporalStatus(str, Enum):
         else:
             return TemporalStatus.LOST
 
-
+# Enums para gestión de pólizas
 class ManagementStatus(str, Enum):
     """
     Estado de gestión de una póliza, almacenado en la base de datos.
@@ -79,10 +55,7 @@ class ManagementStatus(str, Enum):
     RENEWED = "renewed"
 
 
-# ---------------------------------------------------------------------------
 # Request schemas
-# ---------------------------------------------------------------------------
-
 class PolicyRenewRequest(BaseModel):
     """Datos para renovar una póliza."""
 
@@ -96,10 +69,7 @@ class PolicyRenewRequest(BaseModel):
         return v
 
 
-# ---------------------------------------------------------------------------
 # Response schemas
-# ---------------------------------------------------------------------------
-
 class PolicyResponse(BaseModel):
     """Póliza en listado (GET /policies)."""
 
