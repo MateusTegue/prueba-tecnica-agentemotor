@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AlertCircle } from 'lucide-react';
 import Header from '../components/Header';
+import ExpirationChart from '../components/ExpirationChart';
 import ContactModal from '../components/ContactModal';
 import RenewModal from '../components/RenewModal';
 import { getPolicies } from '../services/api';
@@ -86,6 +87,8 @@ const Dashboard = ({ activeSection = 'operations' }) => {
 
       {/* Metrics Header Component */}
       <Header policies={policies} />
+
+      {!isOperationsView && <ExpirationChart policies={policies} />}
 
       {isOperationsView && (
         <>
