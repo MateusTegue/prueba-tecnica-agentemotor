@@ -71,15 +71,98 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Global shell with sidebar + content */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-brand {
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.sidebar-item:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-item.active {
+  background-color: var(--primary-light);
+  border-color: #bfdbfe;
+  color: var(--primary-color);
+}
+
 /* App Container */
 .app-container {
-  max-width: 1400px;
+  background-color: white;
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
   padding: 1.5rem 1.5rem 0.5rem 1.5rem;
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.85rem 1rem;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+  }
 }
 
 .header-section {
@@ -359,6 +442,40 @@ body {
 
 .policy-table tr:hover td {
   background-color: rgba(248, 250, 252, 0.5);
+}
+
+/* Table skeleton */
+.skeleton-line,
+.skeleton-pill,
+.skeleton-btn {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  background-color: #e8edf5;
+  border-radius: 6px;
+}
+
+.skeleton-line::after,
+.skeleton-pill::after,
+.skeleton-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: skeletonShimmer 1.25s infinite;
+}
+
+.skeleton-name { width: 140px; height: 12px; margin-bottom: 8px; }
+.skeleton-policy { width: 120px; height: 12px; margin-bottom: 8px; }
+.skeleton-date { width: 110px; height: 12px; margin-bottom: 8px; }
+.skeleton-sub { width: 170px; height: 10px; }
+.skeleton-attempts { width: 36px; height: 12px; }
+.skeleton-pill { width: 92px; height: 24px; border-radius: 9999px; }
+.skeleton-btn { width: 88px; height: 32px; border-radius: 8px; }
+
+@keyframes skeletonShimmer {
+  100% { transform: translateX(100%); }
 }
 
 /* Badges */
@@ -902,4 +1019,74 @@ body {
 
 .day-cell.empty {
   cursor: default;
+}
+
+/* Toast notifications */
+.toast-stack {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-width: 360px;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.toast-success {
+  border-color: var(--border-active);
+  background-color: var(--bg-active);
+  color: var(--color-active);
+}
+
+.toast-error {
+  border-color: var(--border-expired-recoverable);
+  background-color: var(--bg-expired-recoverable);
+  color: var(--color-expired-recoverable);
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.toast-message {
+  font-size: 0.85rem;
+  line-height: 1.3;
+  font-weight: 600;
+  flex: 1;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .toast-stack {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, PhoneCall, Calendar, AlertCircle } from 'lucide-react';
 import { getPolicyDetail, createContactAttempt } from '../services/api';
 
-const ContactModal = ({ policyId, onClose, onSave }) => {
+const ContactModal = ({ policyId, onClose, onSave, onActionError }) => {
   const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +37,7 @@ const ContactModal = ({ policyId, onClose, onSave }) => {
       onSave();
     } catch (err) {
       setError(err.message);
+      if (onActionError) onActionError(err.message);
       setSubmitting(false);
     }
   };

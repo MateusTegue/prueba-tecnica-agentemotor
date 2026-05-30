@@ -7,7 +7,7 @@ const monthNames = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-const RenewModal = ({ policy, onClose, onSave }) => {
+const RenewModal = ({ policy, onClose, onSave, onActionError }) => {
   const [newDate, setNewDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -40,6 +40,7 @@ const RenewModal = ({ policy, onClose, onSave }) => {
       onSave();
     } catch (err) {
       setError(err.message);
+      if (onActionError) onActionError(err.message);
       setSubmitting(false);
     }
   };

@@ -5,11 +5,15 @@ import ContactModal from '../components/ContactModal';
 import RenewModal from '../components/RenewModal';
 import { getPolicies } from '../services/api';
 import PolicyTable from '../components/PolicyTable';
+import PolicyTableSkeleton from '../components/PolicyTableSkeleton';
 import PolicyToolbar from '../components/PolicyToolbar';
+import ToastNotifications from '../components/ToastNotifications';
 import { getTemporalBadge, getManagementBadge, formatDays } from '../utils/policyDisplay';
 import { ERROR_MESSAGES } from '../helpers/errorMessages';
 
-const Dashboard = () => {
+const Dashboard = ({ activeSection = 'operations' }) => {
+  const isOperationsView = activeSection === 'operations';
+
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +26,20 @@ const Dashboard = () => {
   // Modals state
   const [contactPolicyId, setContactPolicyId] = useState(null);
   const [renewPolicyObj, setRenewPolicyObj] = useState(null);
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = 'success') => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setToasts((prev) => [...prev, { id, type, message }]);
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3500);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
   // Custom Dropdown Sort state
   const fetchPoliciesData = useCallback(async () => {
@@ -53,68 +71,75 @@ const Dashboard = () => {
   const handleContactSaved = () => {
     setContactPolicyId(null);
     fetchPoliciesData();
+    addToast('Contacto registrado correctamente.', 'success');
   };
 
   const handleRenewSaved = () => {
     setRenewPolicyObj(null);
     fetchPoliciesData();
+    addToast('Póliza renovada correctamente.', 'success');
   };
 
   return (
     <div className="app-container">
+      <ToastNotifications toasts={toasts} onClose={removeToast} />
+
       {/* Metrics Header Component */}
       <Header policies={policies} />
 
-      {/* Toolbar Filters / Search */}
-      <PolicyToolbar
-        search={search}
-        onSearchChange={setSearch}
-        temporalStatus={temporalStatus}
-        onTemporalStatusChange={setTemporalStatus}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-      />
+      {isOperationsView && (
+        <>
+          {/* Toolbar Filters / Search */}
+          <PolicyToolbar
+            search={search}
+            onSearchChange={setSearch}
+            temporalStatus={temporalStatus}
+            onTemporalStatusChange={setTemporalStatus}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
 
-      {error && (
-        <div className="error-banner">
-          <AlertCircle size={20} />
-          <span>{error}</span>
-        </div>
+          {error && (
+            <div className="error-banner">
+              <AlertCircle size={20} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Table Section */}
+          <div className="table-container">
+            {loading ? (
+              <PolicyTableSkeleton rows={6} />
+            ) : (
+              <PolicyTable
+                policies={policies}
+                onContact={(id) => setContactPolicyId(id)}
+                onRenew={(policy) => setRenewPolicyObj(policy)}
+                getTemporalBadge={getTemporalBadge}
+                getManagementBadge={getManagementBadge}
+                formatDays={formatDays}
+              />
+            )}
+          </div>
+        </>
       )}
 
-      {/* Table Section */}
-      <div className="table-container">
-        {loading && policies.length === 0 ? (
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Cargando información de la cartera...</p>
-          </div>
-        ) : (
-          <PolicyTable
-            policies={policies}
-            onContact={(id) => setContactPolicyId(id)}
-            onRenew={(policy) => setRenewPolicyObj(policy)}
-            getTemporalBadge={getTemporalBadge}
-            getManagementBadge={getManagementBadge}
-            formatDays={formatDays}
-          />
-        )}
-      </div>
-
       {/* Modals */}
-      {contactPolicyId && (
+      {isOperationsView && contactPolicyId && (
         <ContactModal
           policyId={contactPolicyId}
           onClose={() => setContactPolicyId(null)}
           onSave={handleContactSaved}
+          onActionError={(message) => addToast(message, 'error')}
         />
       )}
 
-      {renewPolicyObj && (
+      {isOperationsView && renewPolicyObj && (
         <RenewModal
           policy={renewPolicyObj}
           onClose={() => setRenewPolicyObj(null)}
           onSave={handleRenewSaved}
+          onActionError={(message) => addToast(message, 'error')}
         />
       )}
     </div>
