@@ -36,17 +36,34 @@ Frontend
 ## 4. Cómo ejecutar el proyecto (rápido)
 Sigue estos pasos en PowerShell desde la raíz del repo.
 
-Backend (3 comandos):
+Backend (comandos):
 ```powershell
+1. navegar a la carpeta del backend
 cd src/Backend
+
+2. crear el ambiente virtual
 python -m venv .venv
-.venv\Scripts\Activate.ps1; pip install -r requirements.txt; uvicorn main:app --reload --port 8000
+
+3. activar el ambiente virtual
+.venv\Scripts\Activate.ps1; 
+
+4. instalar las dependecias 
+pip install -r requirements.txt
+
+5. levantar el servidor de backend
+uvicorn main:app --reload --port 8000
 ```
 
 Frontend (3 comandos):
 ```powershell
+
+1. navegar a la carpeta del frontend
 cd src/Frontend
+
+2 instalar las dependencias 
 npm install
+
+3. levantar el servidor cliente
 npm run dev
 ```
 

@@ -36,7 +36,7 @@ class ContactAttemptCreate(BaseModel):
 
     outcome: ContactOutcome
     notes: Optional[str] = None
-    created_at: Optional[str] = None  # Formato: YYYY-MM-DD HH:MM:SS (opcional, por defecto fecha/hora actual)
+    created_at: Optional[str] = None  
 
 
 # ---------------------------------------------------------------------------
