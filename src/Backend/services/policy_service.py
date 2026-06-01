@@ -18,6 +18,7 @@ from models.contact_attempt import (
     ContactAttemptResponse,
     ContactOutcome,
 )
+from repository.policy_repository import PolicyRepository
 
 
 class PolicyService:
@@ -47,38 +48,11 @@ class PolicyService:
         """
         Obtiene y filtra las pólizas según los criterios del asesor.
         """
-        # Consulta base
-        query = """
-            SELECT 
-                p.id,
-                p.policy_number,
-                p.type,
-                p.insurer,
-                p.expiration_date,
-                p.management_status,
-                c.id as client_id,
-                c.name as client_name,
-                c.phone as client_phone,
-                (SELECT COUNT(*) FROM contact_attempts WHERE policy_id = p.id) as contact_attempts_count
-            FROM policies p
-            JOIN clients c ON p.client_id = c.id
-            WHERE 1=1
-        """
-        params = []
-
-        # Filtro por estado de gestión (se puede filtrar directo en SQL)
-        if management_status:
-            query += " AND p.management_status = ?"
-            params.append(management_status)
-
-        # Filtro de búsqueda (nombre de cliente o número de póliza)
-        if search:
-            query += " AND (c.name LIKE ? OR p.policy_number LIKE ?)"
-            search_param = f"%{search}%"
-            params.append(search_param)
-            params.append(search_param)
-
-        rows = db.execute(query, params).fetchall()
+        rows = PolicyRepository.fetch_policies(
+            db,
+            management_status=management_status,
+            search=search,
+        )
 
         # Convertir a objetos PolicyResponse y calcular estados temporales en Python
         policies: List[PolicyResponse] = []
@@ -157,32 +131,11 @@ class PolicyService:
         """
         Retorna el detalle completo de una póliza específica.
         """
-        # Consultar póliza y cliente
-        query = """
-            SELECT 
-                p.id,
-                p.policy_number,
-                p.type,
-                p.insurer,
-                p.expiration_date,
-                p.management_status,
-                c.id as client_id,
-                c.name as client_name,
-                c.phone as client_phone,
-                c.email as client_email
-            FROM policies p
-            JOIN clients c ON p.client_id = c.id
-            WHERE p.id = ?
-        """
-        row = db.execute(query, (policy_id,)).fetchone()
+        row = PolicyRepository.fetch_policy_detail(db, policy_id)
         if not row:
             return None
 
-        # Consultar intentos de contacto
-        attempts_rows = db.execute(
-            "SELECT id, outcome, notes, created_at FROM contact_attempts WHERE policy_id = ? ORDER BY created_at DESC",
-            (policy_id,)
-        ).fetchall()
+        attempts_rows = PolicyRepository.fetch_contact_attempts(db, policy_id)
 
         attempts = [
             ContactAttemptResponse(
@@ -223,24 +176,24 @@ class PolicyService:
         Registra un intento de contacto para una póliza.
         Actualiza el estado de gestión a 'contacted' si estaba en 'pending'.
         """
-        # Verificar si la póliza existe
-        policy = db.execute("SELECT id, management_status FROM policies WHERE id = ?", (policy_id,)).fetchone()
+        policy = PolicyRepository.fetch_policy_for_status_check(db, policy_id)
         if not policy:
             return None
 
-        # Insertar intento
         created_at = attempt.created_at if attempt.created_at else datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cursor = db.execute(
-            "INSERT INTO contact_attempts (policy_id, outcome, notes, created_at) VALUES (?, ?, ?, ?)",
-            (policy_id, attempt.outcome.value, attempt.notes, created_at)
+        attempt_id = PolicyRepository.insert_contact_attempt(
+            db,
+            policy_id,
+            attempt.outcome.value,
+            attempt.notes,
+            created_at,
         )
-        attempt_id = cursor.lastrowid
 
-        # Actualizar estado de gestión de la póliza si está en pending
         if policy["management_status"] == ManagementStatus.PENDING.value:
-            db.execute(
-                "UPDATE policies SET management_status = ? WHERE id = ?",
-                (ManagementStatus.CONTACTED.value, policy_id)
+            PolicyRepository.update_policy_management_status(
+                db,
+                policy_id,
+                ManagementStatus.CONTACTED.value,
             )
 
         db.commit()
@@ -263,9 +216,7 @@ class PolicyService:
         
         Retorna (success, message, updated_policy)
         """
-        # Consultar la póliza actual
-        query = "SELECT id, expiration_date, management_status FROM policies WHERE id = ?"
-        policy = db.execute(query, (policy_id,)).fetchone()
+        policy = PolicyRepository.fetch_policy_for_status_check(db, policy_id)
         if not policy:
             return False, "La póliza no existe.", None
 
@@ -278,12 +229,7 @@ class PolicyService:
         if policy["management_status"] == ManagementStatus.RENEWED.value:
             return False, "Esta póliza ya ha sido renovada.", None
 
-        # Actualizar la póliza
-        new_date_str = new_expiration_date.isoformat()
-        db.execute(
-            "UPDATE policies SET expiration_date = ?, management_status = ? WHERE id = ?",
-            (new_date_str, ManagementStatus.RENEWED.value, policy_id)
-        )
+        PolicyRepository.update_policy_renewal(db, policy_id, new_expiration_date)
         db.commit()
 
         # Obtener detalle actualizado

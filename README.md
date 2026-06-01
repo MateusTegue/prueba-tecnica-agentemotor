@@ -113,7 +113,7 @@ Estimación honesta: ~10–14 horas de trabajo alineado a un MVP (diseño, imple
 - Añadir tests E2E mínimos que cubran el flujo crítico desde la interfaz.
 
 ## 12. Video
-Inserte aquí el enlace al video demostrativo (breve, 3–5 minutos) sobre funcionalidades clave y flujo de uso.
+https://drive.google.com/file/d/1sjur3zofz0FbFklcpM5driasHeLZnWf3/view?usp=sharing
 
 ---
 
